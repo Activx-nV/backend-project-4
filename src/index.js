@@ -1,26 +1,55 @@
 import fsp from 'fs/promises';
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 import path from 'path';
+import prettier from 'prettier';
+import {
+  formatPathName, isDownloadable, getFilePath, replaceSlashesWithDashed,
+} from './utils.js';
 
-const getFilePath = (outputDir, fileName) => path.join(outputDir, fileName);
+const downloadFiles = (url, filePath) => axios.get(url, { responseType: 'arraybuffer' })
+  .then((response) => fsp.writeFile(filePath, response.data))
+  .then(() => {
+    console.log(url);
+    console.log(filePath);
+  })
+  .catch((error) => {
+    throw error;
+  });
 
 const pageLoader = (url, outputDir) => {
+  const formattedFileName = formatPathName(url);
+  const filesFolderName = `${formattedFileName}_files`;
   const newUrl = new URL(url);
-  const hostName = newUrl.host;
-  const pathName = newUrl.pathname;
-  const fullPath = `${hostName}${pathName}`;
-  const formattedFileName = `${fullPath.replace(/[^a-zA-Z0-9]/g, '-')}.html`;
-  const filePath = getFilePath(outputDir, formattedFileName);
+  const formattedHostName = formatPathName(newUrl.host);
 
-  return axios.get(url, { responseType: 'document' })
-    .then((response) => fsp.writeFile(filePath, response.data, (err) => {
-      if (err) {
-        throw err;
-      }
-    }).then(() => {
-      console.log(url);
-      console.log(filePath);
-    }))
+  const htmlExtFileName = `${formattedFileName}.html`;
+  const htmlFilePath = getFilePath(outputDir, htmlExtFileName);
+  const filesFolderDirPath = getFilePath(outputDir, filesFolderName);
+
+  return downloadFiles(url, htmlFilePath)
+    .then(() => fsp.mkdir(filesFolderDirPath, { recursive: true }))
+    .then(() => fsp.readFile(htmlFilePath))
+    .then((data) => {
+      const $ = cheerio.load(data);
+      const imgPromises = [];
+
+      $('img').each((i, img) => {
+        const imgSrc = $(img).attr('src');
+        const imgFileName = `${formattedHostName}${replaceSlashesWithDashed(imgSrc)}`;
+        const imgPathName = path.join(filesFolderDirPath, imgFileName);
+        const imgDownloadLink = new URL(imgSrc, url).href;
+
+        if (isDownloadable(imgSrc, url)) {
+          imgPromises.push(downloadFiles(imgDownloadLink, imgPathName));
+          $(img).attr('src', getFilePath(filesFolderName, imgFileName));
+        }
+      });
+
+      const updatedHtml = prettier.format($.html(), { parser: 'html' });
+      return Promise.all(imgPromises)
+        .then(() => fsp.writeFile(htmlFilePath, updatedHtml));
+    })
     .catch((error) => {
       throw error;
     });
