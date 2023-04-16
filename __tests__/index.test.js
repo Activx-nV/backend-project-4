@@ -17,6 +17,8 @@ const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', 
 let initHtmlData;
 let updatedHtmlData;
 let imageData;
+let jsData;
+let cssData;
 let tmpDir;
 
 beforeEach(async () => {
@@ -27,9 +29,14 @@ beforeAll(async () => {
   const initHtmlFixturePath = path.join(getFixturePath('ru-hexlet-io-courses_files'), 'ru-hexlet-io-courses.html');
   const imageFileFixture = path.join(getFixturePath('ru-hexlet-io-courses_files'), 'ru-hexlet-io-assets-professions-nodejs.png');
   const updatedHtmlFixturePath = getFixturePath('ru-hexlet-io-courses.html');
+  const jsFileFixturePath = path.join(getFixturePath('ru-hexlet-io-courses_files'), 'ru-hexlet-io-packs-js-runtime.js');
+  const cssFileFixturePath = path.join(getFixturePath('ru-hexlet-io-courses_files'), 'ru-hexlet-io-assets-application.css');
+
   initHtmlData = await fsp.readFile(initHtmlFixturePath, 'utf-8');
   imageData = await fsp.readFile(imageFileFixture, 'utf-8');
   updatedHtmlData = await fsp.readFile(updatedHtmlFixturePath, 'utf-8');
+  jsData = await fsp.readFile(jsFileFixturePath, 'utf-8');
+  cssData = await fsp.readFile(cssFileFixturePath, 'utf-8');
 });
 
 describe('Check successful download', () => {
@@ -37,18 +44,30 @@ describe('Check successful download', () => {
     const initialHtmlData = initHtmlData;
     const actualHtmlData = updatedHtmlData;
     const actualImageData = imageData;
+    const actualJsData = jsData;
+    const actualCssData = cssData;
 
     nock(/ru\.hexlet\.io/)
       .get(/\/courses/)
       .reply(200, initialHtmlData)
       .get(/\/assets\/professions\/nodejs\.png/)
-      .reply(200, actualImageData);
+      .reply(200, actualImageData)
+      .get(/\/packs\/js\/runtime\.js/)
+      .reply(200, actualJsData)
+      .get(/\/assets\/application\.css/)
+      .reply(200, actualCssData)
+      .get(/\/courses/)
+      .reply(200, initialHtmlData);
 
     await pageLoader('https://ru.hexlet.io/courses', tmpDir);
     const expectedHtmlData = await fsp.readFile(path.join(tmpDir, 'ru-hexlet-io-courses.html'), 'utf-8');
     const expectedImageData = await fsp.readFile(path.join(tmpDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-professions-nodejs.png'), 'utf-8');
+    const expectedJsData = await fsp.readFile(path.join(tmpDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-packs-js-runtime.js'), 'utf-8');
+    const expectedCssData = await fsp.readFile(path.join(tmpDir, 'ru-hexlet-io-courses_files', 'ru-hexlet-io-assets-application.css'), 'utf-8');
 
     expect(expectedHtmlData).toEqual(actualHtmlData);
     expect(expectedImageData).toEqual(actualImageData);
+    expect(expectedJsData).toEqual(actualJsData);
+    expect(expectedCssData).toEqual(actualCssData);
   });
 });

@@ -1,0 +1,3 @@
+const greetings = () => 'Welcome!';
+
+greetings();
