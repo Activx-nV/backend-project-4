@@ -1,4 +1,3 @@
-import { test } from '@jest/globals';
 import { fileURLToPath } from 'url';
 import nock from 'nock';
 import os from 'os';

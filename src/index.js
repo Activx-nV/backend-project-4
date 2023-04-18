@@ -4,7 +4,7 @@ import {
   formatPathName, getFilePath, getAllResources, downloadFiles,
 } from './utils.js';
 
-const pageLoader = (url, outputDir) => {
+const pageLoader = (url, outputDir = process.cwd()) => {
   const formattedFileName = formatPathName(url);
   const filesFolderName = `${formattedFileName}_files`;
   const newUrl = new URL(url);

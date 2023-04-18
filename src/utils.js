@@ -2,6 +2,13 @@ import path from 'path';
 import prettier from 'prettier';
 import fsp from 'fs/promises';
 import axios from 'axios';
+import debug from 'debug';
+import axiosDebug from 'axios-debug-log';
+
+const log = debug('page-loader');
+log.enabled = true;
+
+axiosDebug(log);
 
 export const downloadFiles = (url, filePath) => axios.get(url, { responseType: 'arraybuffer' })
   .then((response) => fsp.writeFile(filePath, response.data))
@@ -36,6 +43,9 @@ export const getAllResources = (
     script: 'src',
   };
 
+  log(`HTML file path: ${htmlFilePath}`);
+  log(`Resource files store directory: ${filesFolderDirPath}`);
+
   Object.entries(resourcesTags).map(([key, value]) => {
     $(key).each((i, tagName) => {
       const src = $(tagName).attr(value);
@@ -50,6 +60,8 @@ export const getAllResources = (
       const downloadLink = new URL(src, url).href;
 
       if (isDownloadable(src, url)) {
+        log(`File name: ${filename}`);
+        log(`Download url: ${downloadLink}`);
         promises.push(downloadFiles(downloadLink, pathname));
         $(tagName).attr(value, getFilePath(filesFolderName, filename));
       }
