@@ -14,23 +14,22 @@ const pageLoader = (url, outputDir = process.cwd()) => {
   const htmlFilePath = getFilePath(outputDir, htmlExtFileName);
   const filesFolderDirPath = getFilePath(outputDir, filesFolderName);
 
-  return downloadFiles(url, htmlFilePath)
-    .then(() => fsp.mkdir(filesFolderDirPath, { recursive: true }))
-    .then(() => fsp.readFile(htmlFilePath))
-    .then((data) => {
-      const $ = cheerio.load(data);
-      return getAllResources(
-        $,
-        formattedHostName,
-        filesFolderDirPath,
-        filesFolderName,
-        htmlFilePath,
-        url,
-      );
-    })
-    .catch((error) => {
-      throw error;
-    });
+  return fsp.access(outputDir)
+    .catch(() => fsp.mkdir(outputDir, { recursive: true }))
+    .then(() => downloadFiles(url, htmlFilePath)
+      .then(() => fsp.mkdir(filesFolderDirPath, { recursive: true }))
+      .then(() => fsp.readFile(htmlFilePath))
+      .then((data) => {
+        const $ = cheerio.load(data);
+        return getAllResources(
+          $,
+          formattedHostName,
+          filesFolderDirPath,
+          filesFolderName,
+          htmlFilePath,
+          url,
+        );
+      }));
 };
 
 export default pageLoader;

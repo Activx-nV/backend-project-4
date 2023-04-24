@@ -11,10 +11,7 @@ log.enabled = true;
 axiosDebug(log);
 
 export const downloadFiles = (url, filePath) => axios.get(url, { responseType: 'arraybuffer' })
-  .then((response) => fsp.writeFile(filePath, response.data))
-  .catch((error) => {
-    throw error;
-  });
+  .then((response) => fsp.writeFile(filePath, response.data));
 
 export const formatPathName = (pathName) => pathName.replace(/htt(p|ps):\/\//, '').replace(/\W/g, '-');
 

@@ -70,3 +70,27 @@ describe('Check successful download', () => {
     expect(expectedCssData).toEqual(actualCssData);
   });
 });
+
+describe('Thrown rejections', () => {
+  test('FS issues', async () => {
+    nock('https://example.com')
+      .get('/')
+      .reply(200);
+
+    await expect(pageLoader('https://example.com', '/etc')).rejects.toThrow("EACCES: permission denied, open '/etc/example-com.html'");
+  });
+
+  test('HTTP issues', async () => {
+    nock('https://unavailable-domain.io')
+      .get('/')
+      .replyWithError('getaddrinfo ENOUTFOUND unavailable-domain.io')
+      .get('/nonexistent')
+      .reply(404, 'Not found')
+      .get('/server-error')
+      .reply(500, 'Internal Server Error');
+
+    await expect(pageLoader('https://unavailable-domain.io', tmpDir)).rejects.toThrow('getaddrinfo ENOUTFOUND unavailable-domain.io');
+    await expect(pageLoader('https://unavailable-domain.io/nonexistent')).rejects.toThrow('Request failed with status code 404');
+    await expect(pageLoader('https://unavailable-domain.io/server-error')).rejects.toThrow('Request failed with status code 500');
+  });
+});

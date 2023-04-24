@@ -15,7 +15,7 @@ program
       console.log(`The page ${url} was successfully downloaded`);
     })
     .catch((err) => {
-      console.error(`${err.message} error occurred while downloading the page`);
+      console.error(`Error occurred while downloading the page: ${err.message} ${err.code}`);
       process.exit(1);
     }));
 
