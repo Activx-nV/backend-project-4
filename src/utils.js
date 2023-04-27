@@ -45,7 +45,7 @@ export const getAllResources = (
   log(`Resource files store directory: ${filesFolderDirPath}`);
 
   Object.entries(resourcesTags).map(([key, value]) => {
-    $(key).each((i, tagName) => {
+    return $(key).each((i, tagName) => {
       const src = $(tagName).attr(value);
       if (!src) {
         return;
