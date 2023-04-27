@@ -4,9 +4,10 @@ import fsp from 'fs/promises';
 import axios from 'axios';
 import debug from 'debug';
 import axiosDebug from 'axios-debug-log';
+import Listr from 'listr';
 
 const log = debug('page-loader');
-log.enabled = true;
+log.enabled = false;
 
 axiosDebug(log);
 
@@ -33,7 +34,7 @@ export const getAllResources = (
   htmlFilePath,
   url,
 ) => {
-  const promises = [];
+  const tasks = new Listr([], { concurrent: true });
   const resourcesTags = {
     img: 'src',
     link: 'href',
@@ -59,13 +60,16 @@ export const getAllResources = (
       if (isDownloadable(src, url)) {
         log(`File name: ${filename}`);
         log(`Download url: ${downloadLink}`);
-        promises.push(downloadFiles(downloadLink, pathname));
+        tasks.add({
+          title: downloadLink,
+          task: () => downloadFiles(downloadLink, pathname)
+        });
         $(tagName).attr(value, getFilePath(filesFolderName, filename));
       }
     });
   });
 
   const updatedHtml = prettier.format($.html(), { parser: 'html' });
-  return Promise.all(promises)
-    .then(() => fsp.writeFile(htmlFilePath, updatedHtml));
+  return tasks.run()
+      .then(() => fsp.writeFile(htmlFilePath, updatedHtml)).then(() => console.log(`Page was successfully downloaded into ${htmlFilePath}`));
 };

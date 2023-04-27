@@ -11,9 +11,6 @@ program
   .option('-o, --output [dir]', 'output dir', process.cwd())
   .argument('<url>')
   .action((url, { output }) => pageLoader(url, output)
-    .then(() => {
-      console.log(`The page ${url} was successfully downloaded`);
-    })
     .catch((err) => {
       console.error(`Error occurred while downloading the page: ${err.message} ${err.code}`);
       process.exit(1);
