@@ -62,7 +62,7 @@ export const getAllResources = (
         log(`Download url: ${downloadLink}`);
         tasks.add({
           title: downloadLink,
-          task: () => downloadFiles(downloadLink, pathname)
+          task: () => downloadFiles(downloadLink, pathname),
         });
         $(tagName).attr(value, getFilePath(filesFolderName, filename));
       }
@@ -71,5 +71,5 @@ export const getAllResources = (
 
   const updatedHtml = prettier.format($.html(), { parser: 'html' });
   return tasks.run()
-      .then(() => fsp.writeFile(htmlFilePath, updatedHtml)).then(() => console.log(`Page was successfully downloaded into ${htmlFilePath}`));
+    .then(() => fsp.writeFile(htmlFilePath, updatedHtml)).then(() => console.log(`Page was successfully downloaded into ${htmlFilePath}`));
 };
