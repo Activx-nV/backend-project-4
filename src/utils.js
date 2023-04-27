@@ -44,30 +44,28 @@ export const getAllResources = (
   log(`HTML file path: ${htmlFilePath}`);
   log(`Resource files store directory: ${filesFolderDirPath}`);
 
-  Object.entries(resourcesTags).map(([key, value]) => {
-    return $(key).each((i, tagName) => {
-      const src = $(tagName).attr(value);
-      if (!src) {
-        return;
-      }
+  Object.entries(resourcesTags).map(([key, value]) => $(key).each((i, tagName) => {
+    const src = $(tagName).attr(value);
+    if (!src) {
+      return;
+    }
 
-      const parsedUrl = new URL(src, url);
-      const extensionFallBack = path.extname(parsedUrl.pathname) ? '' : '.html';
-      const filename = `${formattedHostName}${replaceSlashesWithDashed(parsedUrl.pathname)}${extensionFallBack}`;
-      const pathname = path.join(filesFolderDirPath, filename);
-      const downloadLink = new URL(src, url).href;
+    const parsedUrl = new URL(src, url);
+    const extensionFallBack = path.extname(parsedUrl.pathname) ? '' : '.html';
+    const filename = `${formattedHostName}${replaceSlashesWithDashed(parsedUrl.pathname)}${extensionFallBack}`;
+    const pathname = path.join(filesFolderDirPath, filename);
+    const downloadLink = new URL(src, url).href;
 
-      if (isDownloadable(src, url)) {
-        log(`File name: ${filename}`);
-        log(`Download url: ${downloadLink}`);
-        tasks.add({
-          title: downloadLink,
-          task: () => downloadFiles(downloadLink, pathname),
-        });
-        $(tagName).attr(value, getFilePath(filesFolderName, filename));
-      }
-    });
-  });
+    if (isDownloadable(src, url)) {
+      log(`File name: ${filename}`);
+      log(`Download url: ${downloadLink}`);
+      tasks.add({
+        title: downloadLink,
+        task: () => downloadFiles(downloadLink, pathname),
+      });
+      $(tagName).attr(value, getFilePath(filesFolderName, filename));
+    }
+  }));
 
   const updatedHtml = prettier.format($.html(), { parser: 'html' });
   return tasks.run()
