@@ -5,9 +5,16 @@ import {
 } from './utils.js';
 
 const pageLoader = (url, outputDir = process.cwd()) => {
-  const formattedFileName = formatPathName(url);
-  const filesFolderName = `${formattedFileName}_files`;
   const newUrl = new URL(url);
+  let formattedFileName;
+
+  if (newUrl.pathname === '/') {
+    formattedFileName = formatPathName(newUrl.origin);
+  } else {
+    formattedFileName = formatPathName(newUrl.origin + newUrl.pathname);
+  }
+
+  const filesFolderName = `${formattedFileName}_files`;
   const formattedHostName = formatPathName(newUrl.host);
 
   const htmlExtFileName = `${formattedFileName}.html`;
