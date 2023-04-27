@@ -1,3 +1,6 @@
+## Page Loader
+Page loader is a command-line tool to download web pages and their associated resources for offline viewing.
+
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Activx-nV/backend-project-4/workflows/hexlet-check/badge.svg)](https://github.com/Activx-nV/backend-project-4/actions)
 
@@ -21,5 +24,11 @@ $ npm link
 ### How to use:
 [![asciicast](https://asciinema.org/a/gPMvUXspBZvY0iDiNxH9sb6gj.svg)](https://asciinema.org/a/gPMvUXspBZvY0iDiNxH9sb6gj)
 
+### Debug mode:
+[![asciicast](https://asciinema.org/a/N1VbMQVNDsfrT0KtgqD0FNYEo.svg)](https://asciinema.org/a/N1VbMQVNDsfrT0KtgqD0FNYEo)
+
 ### Test logging:
 [![asciicast](https://asciinema.org/a/QiddaGkEFtfQul7FT3qEL1PF9.svg)](https://asciinema.org/a/QiddaGkEFtfQul7FT3qEL1PF9)
+
+### Failed download errors
+[![asciicast](https://asciinema.org/a/W4ub8Ot5rd9U1HVkcO0iVhyxO.svg)](https://asciinema.org/a/W4ub8Ot5rd9U1HVkcO0iVhyxO)
