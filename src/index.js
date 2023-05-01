@@ -1,8 +1,15 @@
 import fsp from 'fs/promises';
 import * as cheerio from 'cheerio';
+import debug from 'debug';
+import axiosDebug from 'axios-debug-log';
 import {
   formatPathName, getFilePath, getAllResources, downloadFiles,
 } from './utils.js';
+
+const log = debug('page-loader');
+log.enabled = false;
+
+axiosDebug(log);
 
 const pageLoader = (url, outputDir = process.cwd()) => {
   const newUrl = new URL(url);
@@ -35,6 +42,7 @@ const pageLoader = (url, outputDir = process.cwd()) => {
           filesFolderName,
           htmlFilePath,
           url,
+          log,
         );
       }));
 };

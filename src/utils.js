@@ -2,14 +2,7 @@ import path from 'path';
 import prettier from 'prettier';
 import fsp from 'fs/promises';
 import axios from 'axios';
-import debug from 'debug';
-import axiosDebug from 'axios-debug-log';
 import Listr from 'listr';
-
-const log = debug('page-loader');
-log.enabled = false;
-
-axiosDebug(log);
 
 export const downloadFiles = (url, filePath) => axios.get(url, { responseType: 'arraybuffer' })
   .then((response) => fsp.writeFile(filePath, response.data));
@@ -33,18 +26,15 @@ export const getAllResources = (
   filesFolderName,
   htmlFilePath,
   url,
+  log,
 ) => {
   const tasks = new Listr([], { concurrent: true });
-  const resourcesTags = {
-    img: 'src',
-    link: 'href',
-    script: 'src',
-  };
+  const resourcesTags = [['img', 'src'], ['link', 'href'], ['script', 'src']];
 
   log(`HTML file path: ${htmlFilePath}`);
   log(`Resource files store directory: ${filesFolderDirPath}`);
 
-  Object.entries(resourcesTags).map(([key, value]) => $(key).each((i, tagName) => {
+  resourcesTags.forEach(([key, value]) => $(key).each((i, tagName) => {
     const src = $(tagName).attr(value);
     if (!src) {
       return;
